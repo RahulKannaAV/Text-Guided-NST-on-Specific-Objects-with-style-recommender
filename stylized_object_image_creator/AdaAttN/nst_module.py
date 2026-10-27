@@ -23,10 +23,10 @@ class NST(nn.Module):
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     MODEL_DIR = Path("models")
     MODEL_DIR.mkdir(exist_ok=True, parents=True)
-    ENCODER_WEIGHT_NAME = "vgg_normalised.pth"
-    ADAATTN_WEIGHT_NAME = "latest_net_adaattn_3.pth"
-    TRANSFORMER_WEIGHT_NAME = "latest_net_transformer.pth"
-    DECODER_WEIGHT_NAME = "latest_net_decoder.pth"
+    ENCODER_WEIGHT_NAME = "encoder_weights.pth"
+    ADAATTN_WEIGHT_NAME = "ada_attn_weights.pth"
+    TRANSFORMER_WEIGHT_NAME = "transformer_weights.pth"
+    DECODER_WEIGHT_NAME = "decoder_weights.pth"
 
     self.encoder = load_encoder_weights(Path(f"{BASE_DIR}\\{MODEL_DIR}\\{ENCODER_WEIGHT_NAME}"))
     self.encoder_layers = get_relu_layers(self.encoder)

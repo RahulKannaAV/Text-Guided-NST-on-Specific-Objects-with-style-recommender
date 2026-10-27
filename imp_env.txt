@@ -1,3 +1,5 @@
+source env/Scripts/activate
+
 export PIP_CACHE_DIR="E:\Text-guided NST on specific Objects Codebase\cache_pip"
 export TMPDIR="E:\Text-guided NST on specific Objects Codebase\temp_pip"
 export RF_HOME="E:\Text-guided NST on specific Objects Codebase\rf-detr_weights"
