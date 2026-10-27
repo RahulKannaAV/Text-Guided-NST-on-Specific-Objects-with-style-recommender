@@ -23,6 +23,9 @@ recog_list = get_similar_coco_labels(entity_list)
 print(f"Objects to be recognized: {recog_list}")
 
 INPUT_PATH = Path("input_images")
+OUTPUT_PATH = Path("output_images")
+OUTPUT_PATH.mkdir(exist_ok=True, parents=True)
+
 accepted_formats = ['png', 'jpg', 'jpeg']
 content_input = []
 style_input = []
@@ -59,7 +62,7 @@ for idx, (name, cropped_content, style_batch) in enumerate(iter(img_dataloader))
         stylized_crop_results = nst_model(cropped_content, style_batch)
         for idx in range(stylized_crop_results.shape[0]):
             tensor = stylized_crop_results[idx].unsqueeze(dim=0)
-            save_nst_image(tensor, INPUT_PATH / f"{name[idx]}_nst_result.jpg" )
+            save_nst_image(tensor, OUTPUT_PATH / f"{name[idx]}_nst_result.jpg" )
 print("Stylized object created successfully")
 
 
