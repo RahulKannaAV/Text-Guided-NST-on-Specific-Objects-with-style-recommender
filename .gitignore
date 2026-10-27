@@ -4,6 +4,7 @@ rf-detr_weights/
 sentence_transformer_weights/
 temp_pip/
 torchvision_weights/
+stylized_object_image_creator/models/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
