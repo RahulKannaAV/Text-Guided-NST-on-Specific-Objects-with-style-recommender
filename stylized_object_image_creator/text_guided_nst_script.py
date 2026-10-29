@@ -13,6 +13,8 @@ import torch
 from named_entity_recog import extract_object_details_from_input, get_similar_coco_labels
 from object_detection_recog import extract_object_from_image
 from AdaAttN.util_functions import save_nst_image
+from image_merge import merge_image_to_original
+from PIL import Image
 
 
 input_prompt = "style this dog"
@@ -40,12 +42,13 @@ for obj_name in recog_list:
     extracted_object_img["cropped_img"].show()
     cropped_path = f"{str(content_input[0]).split(".")[0]}_cropped.jpg"
     extracted_object_img["cropped_img"].save(cropped_path)
-    content_input[0] = cropped_path
+    content_input[0] = {"cropped": cropped_path,
+                        "original": content_input[0]}
 
 print(content_input, style_input)
 
 img_dataset = NST_Dataset(mode="TG-NST",
-                           data=[[str(content_input[0]), str(style_input[0])]])
+                           data=[[str(content_input[0]["cropped"]), str(style_input[0])]])
 
 img_dataloader = DataLoader(img_dataset,
                             batch_size=BATCH_SIZE,
@@ -56,14 +59,18 @@ nst_model = NST().to(DEVICE)
 for idx, (name, cropped_content, style_batch) in enumerate(iter(img_dataloader)):
     cropped_content = cropped_content.to(DEVICE)
     style_batch = style_batch.to(DEVICE)
-
+    NST_SAVE_PATH = OUTPUT_PATH / f"{name[idx]}_{entity_list[idx]}_nst_result.jpg"
     nst_model.eval()
     with torch.no_grad():
         stylized_crop_results = nst_model(cropped_content, style_batch)
         for idx in range(stylized_crop_results.shape[0]):
             tensor = stylized_crop_results[idx].unsqueeze(dim=0)
-            save_nst_image(tensor, OUTPUT_PATH / f"{name[idx]}_nst_result.jpg" )
-print("Stylized object created successfully")
-
-
+            save_nst_image(tensor, NST_SAVE_PATH )
+    print("Stylized object created successfully")
+    
+    # Image merge module
+    merge_image_to_original(detections=extracted_object_img, 
+                            content_img=Image.open(str(content_input[0]["original"])),
+                            nst_image_path=NST_SAVE_PATH,
+                            name=recog_list[0])
 
