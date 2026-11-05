@@ -2,6 +2,7 @@ import re
 import pandas as pd
 import torch
 from torch import nn
+from pathlib import Path
 from torch.utils.data import TensorDataset, DataLoader
 
 # -----------------------------
@@ -10,14 +11,14 @@ from torch.utils.data import TensorDataset, DataLoader
 
 CSV_PATH = "results.csv"
 
-METRICS = ["E1", "E2", "E3"]
+METRICS = ["Color", "Structure", "Semantic"]
 
 # True means higher scores are better.
 # Change to False for metrics where lower scores are better.
 HIGHER_IS_BETTER = {
-    "E1": True,
-    "E2": True,
-    "E3": True,
+    "Color": True,
+    "Structure": True,
+    "Semantic": True,
 }
 
 EMBED_DIM = 8
@@ -226,6 +227,12 @@ def predict_style(content_label, metric_label):
 
 
 # Example inference
-print(predict_style("C1", "E1"))
-print(predict_style("C1", "E2"))
-print(predict_style("C2", "E3"))
+print(predict_style("Bear", "Color"))
+print(predict_style("Squirrel", "Semantic"))
+# print(predict_style("C2", "E3"))
+
+MODEL_PATH = Path("models")
+MODEL_PATH.mkdir(parents=True, exist_ok=True)
+
+torch.save(model.state_dict(), MODEL_PATH / "rec_model_weights.pth")
+print("Model weights saved successfully.")
