@@ -8,3 +8,7 @@ rfdetr==1.11.0
 supervision==0.30.5
 sentence-transformers==6.1.0
 opencv-python
+lpips
+torchmetrics
+pandas
+streamlit

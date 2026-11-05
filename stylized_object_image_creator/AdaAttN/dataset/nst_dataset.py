@@ -12,9 +12,15 @@ CUSTOM_TRANSFORM = v2.Compose([
 ])
 
 class NST_Dataset(Dataset):
-    def __init__(self, content_image_dir="", style_image_dir="", mode="normal", data=[], transform=CUSTOM_TRANSFORM):
+    def __init__(self, s_content="", s_style="", content_image_dir="", style_image_dir="", mode="normal", data=[], transform=CUSTOM_TRANSFORM):
         self.data_transform = transform
-        if(mode != "TG-NST"):
+        self.mode = mode
+        if(mode == "streamlit"):
+            self.streamlit_content = s_content
+            self.streamlit_style = s_style
+            self.image_list = data
+
+        elif(mode != "TG-NST"):
             self.CONTENT_IMAGES_PATH = content_image_dir
             self.STYLE_IMAGES_PATH = style_image_dir
             self.accepted_img_formats = ["png", "jpg", "jpeg"]
@@ -34,6 +40,7 @@ class NST_Dataset(Dataset):
 
             for content in self.content_list:
                 self.image_list.extend([[content, style] for style in self.style_list])
+
         else:
             self.image_list = data
 
@@ -43,15 +50,31 @@ class NST_Dataset(Dataset):
         return len(self.image_list)
 
     def __getitem__(self, idx):
-        if(idx < len(self.image_list)):
-            print(self.image_list)
-            content_image = self.data_transform(Image.open(self.image_list[idx][0]).convert('RGB'))
-            style_image = self.data_transform(Image.open(self.image_list[idx][1]).convert('RGB'))
+        if(self.mode == "streamlit"):
+            if(idx < len(self.image_list)):
+                print(self.image_list)
+                content_image = self.data_transform(self.image_list[idx][0])
+                style_image = self.data_transform(self.image_list[idx][1])
 
-            result_image_name = f"{str(self.image_list[idx][0]).split('\\')[-1].split('.')[0]}_{str(self.image_list[idx][1]).split('\\')[-1].split('.')[0]}"
+                result_image_name = f"{self.streamlit_content}_{self.streamlit_style}_stylized.jpg"
 
-            return [result_image_name, content_image, style_image]
+                return [result_image_name, content_image, style_image]
+
+            else:
+                return []    
+
+
 
         else:
-            return []    
+            if(idx < len(self.image_list)):
+                print(self.image_list)
+                content_image = self.data_transform(Image.open(self.image_list[idx][0]).convert('RGB'))
+                style_image = self.data_transform(Image.open(self.image_list[idx][1]).convert('RGB'))
+
+                result_image_name = f"{str(self.image_list[idx][0]).split('\\')[-1].split('.')[0]}_{str(self.image_list[idx][1]).split('\\')[-1].split('.')[0]}"
+
+                return [result_image_name, content_image, style_image]
+
+            else:
+                return []    
 

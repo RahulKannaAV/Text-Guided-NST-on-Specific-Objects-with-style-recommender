@@ -7,20 +7,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 model = RFDETRMedium()
+# model.inference(compile_backend="inductor", batch_size=1, dtype="float16") 
+
 seg_model = RFDETRSegMedium()
 
-def extract_object_from_image(image_url: str,
-                              object_name: str):
+def segment_object_from_extracted_image(image_url: str):
   content_img = Image.open(image_url).convert('RGB')
   cont_numpy = np.asarray(content_img)
-  detections = model.predict(image_url, threshold=0.8)
+
   seg_detections = seg_model.predict(np.array(content_img), threshold=0.8)
   masks = seg_detections.mask
-
-  labels = [f"{COCO_CLASSES[c_id]}" for c_id in detections.class_id]
-
-  box_annotated_image = sv.BoxAnnotator().annotate(detections.metadata["source_image"], detections)
-  label_annotated_image = sv.LabelAnnotator().annotate(box_annotated_image, detections, labels)
 
   if masks is not None and len(masks) > 0:
     # Combine all instance masks into a single foreground mask (logical OR)
@@ -32,6 +28,27 @@ def extract_object_from_image(image_url: str,
     transparent_fg.putalpha(transparent_fg_alpha_channel)
     transparent_fg.save("foreground_transparent.png")
 
+
+
+
+def extract_object_from_image(image_url: str,
+                              object_name: str,
+                              streamlit_use=False):
+  if(streamlit_use):
+    content_img = image_url
+  else:
+    content_img = Image.open(image_url).convert('RGB')
+  
+  cont_numpy = np.asarray(content_img)
+  detections = model.predict(image_url, threshold=0.8) 
+
+  labels = [f"{COCO_CLASSES[c_id]}" for c_id in detections.class_id]
+
+  box_annotated_image = sv.BoxAnnotator().annotate(detections.metadata["source_image"], detections)
+  label_annotated_image = sv.LabelAnnotator().annotate(box_annotated_image, detections, labels)
+
+
+
   detect_dict = dict()
   for idx in range(len(detections.xyxy)):
     label_name = detections.data["class_name"][idx]
@@ -41,7 +58,11 @@ def extract_object_from_image(image_url: str,
 
   for obj in detect_dict:
     obj_xyxy = detect_dict[obj]["xyxy_bounding"]
-    crop_img = sv.crop_image(Image.open(image_url), obj_xyxy)
+  
+    if(streamlit_use == True):
+      crop_img = sv.crop_image(image_url, obj_xyxy)
+    else:
+      crop_img = sv.crop_image(Image.open(image_url), obj_xyxy)
 
     detect_dict[obj]["cropped_img"] = crop_img
     

@@ -32,7 +32,7 @@ def get_similar_coco_labels(entity_list):
     coco_sim_dict[word] = dict(sorted(coco_sim_dict[word].items(), key=lambda x: x[1], reverse=True))
   return [list(coco_sim_dict[val].items())[0][0] for val in entity_list]
 
-
+"""
 text = "style this cat and dog"
 print(extract_object_details_from_input(text))
 
@@ -40,3 +40,4 @@ user_sentences = ['woman', 'table', 'leopard', 'ball']
 closest_labels = [val[0] for val in get_similar_coco_labels(user_sentences)]
 
 print(closest_labels)
+"""
